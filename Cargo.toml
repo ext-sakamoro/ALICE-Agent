@@ -1,0 +1,31 @@
+[package]
+name = "alice-agent"
+version = "0.1.0"
+edition = "2021"
+authors = ["Moroya Sakamoto <sakamoro@alicelaw.net>"]
+license = "MIT"
+description = "Local-first coding agent powered by ALICE ternary models"
+
+[[bin]]
+name = "alice"
+path = "src/main.rs"
+
+[features]
+default = ["local"]
+local = ["alice-train/qat-cli"]
+api = ["reqwest"]
+mcp = []
+full = ["local", "api", "mcp"]
+
+[dependencies]
+alice-train = { path = "../ALICE-Train", optional = true }
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+regex = "1"
+crossterm = "0.28"
+dirs = "5"
+toml = "0.8"
+uuid = { version = "1", features = ["v4"] }
+glob = "0.3"
+reqwest = { version = "0.12", features = ["json", "blocking", "rustls-tls"], default-features = false, optional = true }
