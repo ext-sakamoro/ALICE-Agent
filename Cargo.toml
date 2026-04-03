@@ -14,6 +14,11 @@ path = "src/main.rs"
 name = "extract-world-model-data"
 path = "src/bin/extract_world_model_data.rs"
 
+[[bin]]
+name = "hf-download"
+path = "src/bin/hf_download.rs"
+required-features = ["api"]
+
 [features]
 default = ["local"]
 local = ["alice-train/qat-cli"]

@@ -1,6 +1,8 @@
 pub mod config;
 pub mod context;
 pub mod conversation;
+#[cfg(feature = "api")]
+pub mod hf_download;
 pub mod mcp;
 pub mod permission;
 pub mod provider;
