@@ -10,6 +10,10 @@ description = "Local-first coding agent powered by ALICE ternary models"
 name = "alice"
 path = "src/main.rs"
 
+[[bin]]
+name = "extract-world-model-data"
+path = "src/bin/extract_world_model_data.rs"
+
 [features]
 default = ["local"]
 local = ["alice-train/qat-cli"]
@@ -28,4 +32,5 @@ dirs = "5"
 toml = "0.8"
 uuid = { version = "1", features = ["v4"] }
 glob = "0.3"
+shellexpand = "3"
 reqwest = { version = "0.12", features = ["json", "blocking", "rustls-tls"], default-features = false, optional = true }
