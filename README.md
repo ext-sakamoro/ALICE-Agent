@@ -100,4 +100,4 @@ temperature = 0.3
 
 ## License
 
-MIT
+AGPL-3.0
