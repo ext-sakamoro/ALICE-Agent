@@ -73,16 +73,11 @@ fn main() {
     let system_prompt = build_context(&working_dir_str);
 
     // プロバイダ
-    let provider: Box<dyn alice_agent::provider::AgentProvider> =
-        create_provider(&cli, &config);
+    let provider: Box<dyn alice_agent::provider::AgentProvider> = create_provider(&cli, &config);
 
     // ランタイム構築
-    let mut runtime = ConversationRuntime::new(
-        provider,
-        Box::new(tools),
-        system_prompt,
-        permission_policy,
-    );
+    let mut runtime =
+        ConversationRuntime::new(provider, Box::new(tools), system_prompt, permission_policy);
 
     // セッション復元
     if cli.resume {

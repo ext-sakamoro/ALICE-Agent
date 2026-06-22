@@ -206,7 +206,10 @@ impl HfDownloader {
             ));
         }
         if status == 404 {
-            return Err(format!("ファイルが見つかりません: {filename} (repo: {})", repo.repo_id));
+            return Err(format!(
+                "ファイルが見つかりません: {filename} (repo: {})",
+                repo.repo_id
+            ));
         }
         if !status.is_success() {
             return Err(format!("ダウンロードエラー: {status} ({url})"));
@@ -220,8 +223,7 @@ impl HfDownloader {
 
         // 親ディレクトリ作成
         if let Some(parent) = dest.parent() {
-            fs::create_dir_all(parent)
-                .map_err(|e| format!("ディレクトリ作成エラー: {e}"))?;
+            fs::create_dir_all(parent).map_err(|e| format!("ディレクトリ作成エラー: {e}"))?;
         }
 
         let mut file = fs::File::create(dest)
@@ -382,8 +384,8 @@ mod tests {
 
     #[test]
     fn test_repo_resolve_url_with_revision() {
-        let repo = HfRepo::new("sakamoro/alice-train", RepoType::Model)
-            .with_revision("test-results");
+        let repo =
+            HfRepo::new("sakamoro/alice-train", RepoType::Model).with_revision("test-results");
         let url = repo.resolve_url("test_results.txt");
         assert_eq!(
             url,

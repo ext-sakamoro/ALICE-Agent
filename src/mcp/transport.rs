@@ -24,7 +24,9 @@ impl StdioTransport {
             cmd.env(key, value);
         }
 
-        let mut child = cmd.spawn().map_err(|e| format!("failed to spawn MCP server: {e}"))?;
+        let mut child = cmd
+            .spawn()
+            .map_err(|e| format!("failed to spawn MCP server: {e}"))?;
 
         let stdout = child
             .stdout
@@ -105,18 +107,15 @@ impl StdioTransport {
                 continue;
             }
 
-            let msg: Value =
-                serde_json::from_str(line.trim()).map_err(|e| format!("parse MCP response: {e}"))?;
+            let msg: Value = serde_json::from_str(line.trim())
+                .map_err(|e| format!("parse MCP response: {e}"))?;
 
             // notification はスキップ
             if msg.get("id").is_none() {
                 continue;
             }
 
-            let id = msg
-                .get("id")
-                .and_then(|v| v.as_u64())
-                .unwrap_or(0);
+            let id = msg.get("id").and_then(|v| v.as_u64()).unwrap_or(0);
 
             if id != expected_id {
                 continue;

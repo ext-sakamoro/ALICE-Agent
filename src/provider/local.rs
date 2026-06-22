@@ -25,12 +25,7 @@ impl LocalProvider {
         let elapsed = start.elapsed();
         eprintln!(
             "[ALICE] {} 起動完了 ({:.1}s)",
-            model
-                .meta
-                .config
-                .num_hidden_layers
-                .to_string()
-                + "層モデル",
+            model.meta.config.num_hidden_layers.to_string() + "層モデル",
             elapsed.as_secs_f64()
         );
 

@@ -51,10 +51,7 @@ pub fn execute(input: &Value, working_dir: &str) -> Result<String, String> {
 
     let count = content.matches(old_string).count();
     if count == 0 {
-        return Err(format!(
-            "old_string not found in {}",
-            path.display()
-        ));
+        return Err(format!("old_string not found in {}", path.display()));
     }
 
     if !replace_all && count > 1 {

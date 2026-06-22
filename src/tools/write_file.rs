@@ -43,5 +43,9 @@ pub fn execute(input: &Value, working_dir: &str) -> Result<String, String> {
 
     std::fs::write(&path, content).map_err(|e| format!("write error: {e}"))?;
 
-    Ok(format!("wrote {} bytes to {}", content.len(), path.display()))
+    Ok(format!(
+        "wrote {} bytes to {}",
+        content.len(),
+        path.display()
+    ))
 }

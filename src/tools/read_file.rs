@@ -30,20 +30,20 @@ pub fn execute(input: &Value, working_dir: &str) -> Result<String, String> {
 
     eprintln!("  > read_file: {}", path.display());
 
-    let content =
-        std::fs::read_to_string(&path).map_err(|e| format!("read error: {e}"))?;
+    let content = std::fs::read_to_string(&path).map_err(|e| format!("read error: {e}"))?;
 
     let offset = input.get("offset").and_then(|v| v.as_u64()).unwrap_or(0) as usize;
-    let limit = input
-        .get("limit")
-        .and_then(|v| v.as_u64())
-        .unwrap_or(2000) as usize;
+    let limit = input.get("limit").and_then(|v| v.as_u64()).unwrap_or(2000) as usize;
 
     let lines: Vec<&str> = content.lines().collect();
     let end = (offset + limit).min(lines.len());
 
     if offset >= lines.len() {
-        return Ok(format!("(file has {} lines, offset {} is past end)", lines.len(), offset));
+        return Ok(format!(
+            "(file has {} lines, offset {} is past end)",
+            lines.len(),
+            offset
+        ));
     }
 
     let mut result = String::new();

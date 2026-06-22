@@ -25,10 +25,7 @@ pub fn execute(input: &Value) -> Result<String, String> {
         .and_then(|v| v.as_str())
         .ok_or("missing 'command' parameter")?;
 
-    let _timeout_secs = input
-        .get("timeout")
-        .and_then(|v| v.as_u64())
-        .unwrap_or(120);
+    let _timeout_secs = input.get("timeout").and_then(|v| v.as_u64()).unwrap_or(120);
 
     eprintln!("  > bash: {command}");
 

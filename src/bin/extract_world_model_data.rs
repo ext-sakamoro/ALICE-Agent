@@ -132,7 +132,11 @@ fn get_commits(repo: &Path, max: usize) -> Vec<CommitInfo> {
             let hash = parts.next()?.to_string();
             let message = parts.next()?.to_string();
             let date = parts.next()?.to_string();
-            Some(CommitInfo { hash, message, date })
+            Some(CommitInfo {
+                hash,
+                message,
+                date,
+            })
         })
         .collect()
 }
@@ -397,7 +401,10 @@ fn main() {
     let cli = Cli::parse();
 
     let repos: Vec<PathBuf> = if let Some(paths) = &cli.repos {
-        paths.iter().map(|p| PathBuf::from(shellexpand::tilde(p).as_ref())).collect()
+        paths
+            .iter()
+            .map(|p| PathBuf::from(shellexpand::tilde(p).as_ref()))
+            .collect()
     } else if let Some(dir) = &cli.scan_dir {
         let scan = PathBuf::from(shellexpand::tilde(dir).as_ref());
         find_repos(&scan, &cli.prefix)
@@ -438,7 +445,9 @@ fn main() {
     let mut follow_ups = 0usize;
 
     for s in &all_samples {
-        *action_types.entry(s.action.action_type.clone()).or_default() += 1;
+        *action_types
+            .entry(s.action.action_type.clone())
+            .or_default() += 1;
         risk_sum += s.outcome.risk_score;
         if s.outcome.follow_up_needed {
             follow_ups += 1;
@@ -454,10 +463,7 @@ fn main() {
 
     if !all_samples.is_empty() {
         let n = all_samples.len();
-        eprintln!(
-            "\nAverage risk score: {:.3}",
-            risk_sum / n as f64
-        );
+        eprintln!("\nAverage risk score: {:.3}", risk_sum / n as f64);
         eprintln!(
             "Follow-up needed: {follow_ups}/{n} ({:.1}%)",
             100.0 * follow_ups as f64 / n as f64

@@ -166,11 +166,14 @@ Done."#;
     fn test_messages_to_turns() {
         let messages = vec![
             AgentMessage::user("hello"),
-            AgentMessage::assistant("I'll check.", vec![ToolCall {
-                id: "c1".to_string(),
-                name: "bash".to_string(),
-                input: serde_json::json!({"command": "ls"}),
-            }]),
+            AgentMessage::assistant(
+                "I'll check.",
+                vec![ToolCall {
+                    id: "c1".to_string(),
+                    name: "bash".to_string(),
+                    input: serde_json::json!({"command": "ls"}),
+                }],
+            ),
             AgentMessage::tool_result("c1", "file1.rs\nfile2.rs", false),
         ];
         let turns = messages_to_turns(&messages);

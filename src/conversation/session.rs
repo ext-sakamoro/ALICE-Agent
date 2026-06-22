@@ -29,8 +29,7 @@ impl Session {
     pub fn save(&self, dir: &Path) -> io::Result<()> {
         std::fs::create_dir_all(dir)?;
         let path = dir.join(format!("{}.json", self.id));
-        let json = serde_json::to_string_pretty(self)
-            .map_err(io::Error::other)?;
+        let json = serde_json::to_string_pretty(self).map_err(io::Error::other)?;
         std::fs::write(path, json)
     }
 
@@ -45,7 +44,11 @@ impl Session {
             let entry = entry?;
             let path = entry.path();
             if path.extension().is_some_and(|e| e == "json") {
-                let name = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+                let name = path
+                    .file_stem()
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string();
                 if latest.as_ref().is_none_or(|(_, n)| name > *n) {
                     latest = Some((path, name));
                 }

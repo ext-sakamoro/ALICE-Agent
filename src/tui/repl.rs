@@ -10,9 +10,7 @@ pub fn run_repl(runtime: &mut ConversationRuntime) {
 
     loop {
         // プロンプト表示
-        stdout
-            .execute(SetForegroundColor(Color::Cyan))
-            .ok();
+        stdout.execute(SetForegroundColor(Color::Cyan)).ok();
         print!("> ");
         stdout.execute(ResetColor).ok();
         stdout.flush().ok();
@@ -43,18 +41,14 @@ pub fn run_repl(runtime: &mut ConversationRuntime) {
         }
 
         // ターン実行
-        stdout
-            .execute(SetForegroundColor(Color::Green))
-            .ok();
+        stdout.execute(SetForegroundColor(Color::Green)).ok();
         match runtime.run_turn(input) {
             Ok(response) => {
                 stdout.execute(ResetColor).ok();
                 println!("{response}");
             }
             Err(e) => {
-                stdout
-                    .execute(SetForegroundColor(Color::Red))
-                    .ok();
+                stdout.execute(SetForegroundColor(Color::Red)).ok();
                 eprintln!("[error] {e}");
                 stdout.execute(ResetColor).ok();
             }

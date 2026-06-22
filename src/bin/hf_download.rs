@@ -144,12 +144,7 @@ fn main() {
     let dest_dir = match &cli.dest {
         Some(d) => std::path::PathBuf::from(shellexpand::tilde(d).as_ref()),
         None => {
-            let repo_name = cli
-                .repo
-                .split('/')
-                .last()
-                .unwrap_or(&cli.repo)
-                .to_string();
+            let repo_name = cli.repo.split('/').last().unwrap_or(&cli.repo).to_string();
             default_cache_dir().join(&repo_name)
         }
     };
