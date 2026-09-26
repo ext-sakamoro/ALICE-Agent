@@ -46,9 +46,10 @@ impl McpClient {
             serde_json::json!({
                 "protocolVersion": "2024-11-05",
                 "capabilities": {},
+                // MCP server へ名乗る版数は Cargo.toml から取る (literal は bump で drift する)
                 "clientInfo": {
                     "name": "alice-agent",
-                    "version": "0.1.0"
+                    "version": env!("CARGO_PKG_VERSION")
                 }
             }),
         )?;
