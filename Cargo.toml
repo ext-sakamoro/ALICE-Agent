@@ -3,7 +3,7 @@ name = "alice-agent"
 version = "0.1.0"
 edition = "2021"
 authors = ["Moroya Sakamoto <sakamoro@alicelaw.net>"]
-license = "AGPL-3.0"
+license = "AGPL-3.0 OR LicenseRef-Commercial"
 description = "Local-first coding agent powered by ALICE ternary models"
 
 [[bin]]
