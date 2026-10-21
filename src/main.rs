@@ -1,5 +1,5 @@
 use alice_agent::config::{sessions_dir, AgentConfig};
-use alice_agent::context::build_context;
+use alice_agent::context::system_prompt;
 use alice_agent::conversation::session::Session;
 use alice_agent::conversation::ConversationRuntime;
 use alice_agent::permission::{PermissionLevel, PermissionPolicy};
@@ -70,7 +70,7 @@ fn main() {
     let tools = StandardTools::new(&working_dir_str);
 
     // コンテキスト (config の context_files、既定は ALICE.md)
-    let system_prompt = build_context(&working_dir_str, &config.context_files);
+    let system_prompt = system_prompt(&config, &working_dir_str);
 
     // プロバイダ
     let provider: Box<dyn alice_agent::provider::AgentProvider> = create_provider(&cli, &config);

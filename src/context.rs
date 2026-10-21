@@ -5,6 +5,11 @@ You are ALICE, a local coding agent. You help users with software engineering ta
 by reading files, writing code, running commands, and solving problems. \
 Be concise and direct. Always prefer editing existing files over creating new ones.";
 
+/// config に従ってシステムプロンプトを構築する (プロジェクトの指示 file は `config.context_files`)
+pub fn system_prompt(config: &crate::config::AgentConfig, working_dir: &str) -> String {
+    build_context(working_dir, &config.context_files)
+}
+
 /// システムプロンプトを構築する `context_files` の名前を working_dir で順に探し、
 /// 最初に見つかった 1 つをプロジェクトの指示として読み込む (既定は `ALICE.md` だけ、
 /// config.toml の `context_files` で変えられる)
@@ -74,6 +79,21 @@ mod tests {
 
     fn names(list: &[&str]) -> Vec<String> {
         list.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn system_prompt_reads_the_files_the_config_lists() {
+        let d = dir_with(&[("ALICE.md", "default"), ("TEAM.md", "configured")]);
+        let config = crate::config::AgentConfig {
+            context_files: names(&["TEAM.md"]),
+            ..Default::default()
+        };
+        let p = system_prompt(&config, d.path().to_str().unwrap());
+        assert!(
+            p.contains("# Project Instructions (from TEAM.md)\n\nconfigured"),
+            "{p}"
+        );
+        assert!(!p.contains("default"), "{p}");
     }
 
     #[test]

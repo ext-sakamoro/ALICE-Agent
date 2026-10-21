@@ -39,17 +39,22 @@ impl OpenAiProvider {
 
     /// 環境変数から自動構築。 Anthropic の model は ANTHROPIC_MODEL で必ず指定する (既定値は持たない)
     pub fn from_env() -> Result<Self, String> {
+        Self::from_env_with(|k| std::env::var(k).ok())
+    }
+
+    /// `from_env` with the variables read through `get` (a test passes a fixed table)
+    pub fn from_env_with(get: impl Fn(&str) -> Option<String>) -> Result<Self, String> {
         // Anthropic 優先
-        if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
-            let model = required_model("ANTHROPIC_MODEL", std::env::var("ANTHROPIC_MODEL").ok())?;
+        if let Some(key) = get("ANTHROPIC_API_KEY") {
+            let model = required_model("ANTHROPIC_MODEL", get("ANTHROPIC_MODEL"))?;
             return Self::new(&key, "https://api.anthropic.com", &model);
         }
 
         // OpenAI
-        if let Ok(key) = std::env::var("OPENAI_API_KEY") {
-            let base = std::env::var("OPENAI_BASE_URL")
-                .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
-            let model = std::env::var("OPENAI_MODEL").unwrap_or_else(|_| "gpt-4o".to_string());
+        if let Some(key) = get("OPENAI_API_KEY") {
+            let base =
+                get("OPENAI_BASE_URL").unwrap_or_else(|| "https://api.openai.com/v1".to_string());
+            let model = get("OPENAI_MODEL").unwrap_or_else(|| "gpt-4o".to_string());
             return Self::new(&key, &base, &model);
         }
 
@@ -210,6 +215,39 @@ mod required_model_tests {
             required_model("ANTHROPIC_MODEL", Some("m-1".to_string())),
             Ok("m-1".to_string())
         );
+    }
+
+    fn env(pairs: &'static [(&'static str, &'static str)]) -> impl Fn(&str) -> Option<String> {
+        move |k| {
+            pairs
+                .iter()
+                .find(|(n, _)| *n == k)
+                .map(|(_, v)| v.to_string())
+        }
+    }
+
+    #[test]
+    fn anthropic_key_without_a_model_is_an_error() {
+        let e = super::OpenAiProvider::from_env_with(env(&[("ANTHROPIC_API_KEY", "k")]))
+            .err()
+            .expect("a key with no model must not build a provider");
+        assert!(e.contains("ANTHROPIC_MODEL not set"), "{e}");
+    }
+
+    #[test]
+    fn anthropic_key_with_a_model_uses_that_model() {
+        let p = super::OpenAiProvider::from_env_with(env(&[
+            ("ANTHROPIC_API_KEY", "k"),
+            ("ANTHROPIC_MODEL", "m-1"),
+        ]))
+        .unwrap();
+        assert_eq!(p.model, "m-1");
+        assert!(p.is_anthropic);
+    }
+
+    #[test]
+    fn no_key_is_an_error() {
+        assert!(super::OpenAiProvider::from_env_with(env(&[])).is_err());
     }
 
     #[test]
