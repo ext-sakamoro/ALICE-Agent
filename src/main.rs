@@ -69,8 +69,8 @@ fn main() {
     // ツール
     let tools = StandardTools::new(&working_dir_str);
 
-    // コンテキスト (ALICE.md / CLAUDE.md)
-    let system_prompt = build_context(&working_dir_str);
+    // コンテキスト (config の context_files、既定は ALICE.md)
+    let system_prompt = build_context(&working_dir_str, &config.context_files);
 
     // プロバイダ
     let provider: Box<dyn alice_agent::provider::AgentProvider> = create_provider(&cli, &config);

@@ -12,7 +12,7 @@ A Rust-native alternative to cloud-based coding agents. Loads a quantized LLM di
 - **MCP support**: Connect to Model Context Protocol servers
 - **Permission control**: read-only / workspace-write / full-access
 - **Session persistence**: Save and resume conversations
-- **Project context**: Automatically loads ALICE.md / CLAUDE.md
+- **Project context**: Loads the project's instruction file from the working directory (`ALICE.md` by default; set `context_files` in `config.toml` to search other names in order)
 
 ## Quick Start
 
@@ -86,6 +86,7 @@ model_path = "/path/to/model.alice"
 tokenizer_path = "/path/to/tokenizer.json"
 max_tokens = 4096
 temperature = 0.3
+context_files = ["ALICE.md"]   # project instruction files, searched in order; the first found is read
 ```
 
 ## Environment Variables
