@@ -131,6 +131,9 @@ mod tests {
         let p = std::env::temp_dir();
         let e = AgentConfig::load_from(&p).unwrap_err();
         assert!(e.contains(&p.display().to_string()), "{e}");
+        // the io error's own text, whatever the platform words it as
+        let reason = std::fs::read_to_string(&p).unwrap_err().to_string();
+        assert!(e.contains(&reason), "{e} / {reason}");
     }
 
     #[test]
