@@ -49,14 +49,28 @@ pub struct Cli {
     pub resume: bool,
 }
 
-/// `alice` を実行して終了コードを返す `env` は環境変数の読取 (binary は `std::env::var`)
-pub fn run(cli: &Cli, env: impl Fn(&str) -> Option<String>, config: &AgentConfig) -> i32 {
+/// `alice` を実行して終了コードを返す `env` は環境変数の読取 (binary は `std::env::var`)、
+/// `config` は [`AgentConfig::load`] の結果 (Err なら exit 1)
+pub fn run(
+    cli: &Cli,
+    env: impl Fn(&str) -> Option<String>,
+    config: Result<AgentConfig, String>,
+) -> i32 {
+    // config が読めない・解釈できない時は既定値で続けず止める
+    let config = match config {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("[ALICE] {e}");
+            return 1;
+        }
+    };
+
     // 作業ディレクトリ解決
     let working_dir = std::fs::canonicalize(&cli.working_dir)
         .unwrap_or_else(|_| std::path::PathBuf::from(&cli.working_dir));
     let working_dir_str = working_dir.to_string_lossy().to_string();
 
-    let mut runtime = match build_runtime(cli, &env, config, &working_dir_str) {
+    let mut runtime = match build_runtime(cli, &env, &config, &working_dir_str) {
         Ok(r) => r,
         Err(e) => {
             eprintln!("[ALICE] {e}");

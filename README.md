@@ -79,7 +79,7 @@ total 48
 
 ## Configuration
 
-Global config at `~/.alice-agent/config.toml`:
+Global config at `~/.alice-agent/config.toml` (optional: without the file the defaults are used; a file that cannot be read or parsed stops `alice` with an error naming the file and the reason):
 
 ```toml
 model_path = "/path/to/model.alice"

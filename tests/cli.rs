@@ -175,3 +175,47 @@ fn without_provider_flag_and_no_key_echo_is_used() {
     assert!(out.status.success(), "{stderr}");
     assert!(text(&out.stdout).contains("[echo]"), "{stderr}");
 }
+
+#[test]
+fn a_malformed_config_toml_is_an_error_naming_the_file() {
+    let (_root, home, work) = layout("malformed", "context_files = [\n", &[]);
+    let out = alice(&home, &work, &[], &["-p", "hello"]);
+    let stderr = text(&out.stderr);
+    assert_eq!(out.status.code(), Some(1), "{stderr}");
+    assert!(stderr.contains("config.toml"), "{stderr}");
+    assert!(stderr.contains("TOML parse error"), "{stderr}");
+    assert!(!text(&out.stdout).contains("[echo]"), "{stderr}");
+}
+
+#[test]
+fn a_config_toml_with_a_wrong_type_is_an_error() {
+    let (_root, home, work) = layout("wrong-type", "max_tokens = \"many\"\n", &[]);
+    let out = alice(&home, &work, &[], &["-p", "hello"]);
+    let stderr = text(&out.stderr);
+    assert_eq!(out.status.code(), Some(1), "{stderr}");
+    assert!(stderr.contains("max_tokens"), "{stderr}");
+}
+
+#[test]
+fn without_config_toml_the_defaults_are_used() {
+    let (_root, home, work) = layout("no-config", "", &[("ALICE.md", "default instructions")]);
+    std::fs::remove_file(home.join(".alice-agent/config.toml")).unwrap();
+    let (url, rx) = one_shot_server("ok");
+    let out = alice(
+        &home,
+        &work,
+        &[("OPENAI_API_KEY", "k"), ("OPENAI_BASE_URL", &url)],
+        &["--provider", "openai", "-p", "hello"],
+    );
+    let stderr = text(&out.stderr);
+    assert!(out.status.success(), "{stderr}");
+    let req = rx
+        .recv_timeout(Duration::from_secs(10))
+        .expect("the provider sent no request");
+    let req: serde_json::Value = serde_json::from_str(&req).unwrap();
+    let system = req["messages"][0]["content"].as_str().unwrap();
+    assert!(
+        system.contains("# Project Instructions (from ALICE.md)\n\ndefault instructions"),
+        "{system}"
+    );
+}

@@ -6,6 +6,6 @@ fn main() {
     std::process::exit(run(
         &Cli::parse(),
         |k| std::env::var(k).ok(),
-        &AgentConfig::load(),
+        AgentConfig::load(),
     ));
 }
