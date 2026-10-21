@@ -99,6 +99,12 @@ context_files = ["ALICE.md"]   # project instruction files, searched in order; t
 | `OPENAI_MODEL` | Model name override |
 | `ANTHROPIC_MODEL` | Model name (required with `ANTHROPIC_API_KEY`; there is no default) |
 
+## Working on this repository
+
+Files that belong to your own editor or local tools, and are not part of the project, go in your
+clone's `.git/info/exclude` rather than in `.gitignore`. That file is never committed, so add the
+entries again in each new clone.
+
 ## License
 
 `AGPL-3.0 OR LicenseRef-Commercial` — dual-licensed. Pick either.
