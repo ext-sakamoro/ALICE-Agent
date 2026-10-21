@@ -37,12 +37,11 @@ impl OpenAiProvider {
         })
     }
 
-    /// 環境変数から自動構築。
+    /// 環境変数から自動構築。 Anthropic の model は ANTHROPIC_MODEL で必ず指定する (既定値は持たない)
     pub fn from_env() -> Result<Self, String> {
         // Anthropic 優先
         if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
-            let model = std::env::var("ANTHROPIC_MODEL")
-                .unwrap_or_else(|_| "claude-sonnet-4-6".to_string());
+            let model = required_model("ANTHROPIC_MODEL", std::env::var("ANTHROPIC_MODEL").ok())?;
             return Self::new(&key, "https://api.anthropic.com", &model);
         }
 
@@ -190,5 +189,34 @@ impl AgentProvider for OpenAiProvider {
 
         eprintln!();
         result
+    }
+}
+
+/// a model name that must be set: `var` unset or blank is an error naming the variable
+fn required_model(name: &str, var: Option<String>) -> Result<String, String> {
+    match var {
+        Some(m) if !m.trim().is_empty() => Ok(m),
+        _ => Err(format!("{name} not set (the model has no default)")),
+    }
+}
+
+#[cfg(test)]
+mod required_model_tests {
+    use super::required_model;
+
+    #[test]
+    fn a_set_model_is_used() {
+        assert_eq!(
+            required_model("ANTHROPIC_MODEL", Some("m-1".to_string())),
+            Ok("m-1".to_string())
+        );
+    }
+
+    #[test]
+    fn an_unset_or_blank_model_is_an_error() {
+        for v in [None, Some(String::new()), Some("  ".to_string())] {
+            let e = required_model("ANTHROPIC_MODEL", v).unwrap_err();
+            assert!(e.contains("ANTHROPIC_MODEL not set"), "{e}");
+        }
     }
 }

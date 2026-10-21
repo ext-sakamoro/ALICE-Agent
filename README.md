@@ -26,7 +26,7 @@ cargo install --path . --features full
 # Run with local model
 alice --model path/to/model.alice --tokenizer path/to/tokenizer.json
 
-# Run with API (set ANTHROPIC_API_KEY or OPENAI_API_KEY)
+# Run with API (set ANTHROPIC_API_KEY + ANTHROPIC_MODEL, or OPENAI_API_KEY)
 alice --provider anthropic
 
 # One-shot mode
@@ -97,7 +97,7 @@ context_files = ["ALICE.md"]   # project instruction files, searched in order; t
 | `OPENAI_API_KEY` | OpenAI API key (for `--provider openai`) |
 | `OPENAI_BASE_URL` | Custom OpenAI-compatible endpoint |
 | `OPENAI_MODEL` | Model name override |
-| `ANTHROPIC_MODEL` | Model name override |
+| `ANTHROPIC_MODEL` | Model name (required with `ANTHROPIC_API_KEY`; there is no default) |
 
 ## License
 
