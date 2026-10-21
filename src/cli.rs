@@ -156,7 +156,7 @@ fn save_session(runtime: &ConversationRuntime, working_dir: &str) {
     }
 }
 
-/// `--provider` 指定時は API (失敗は Err) / なければ local model → API → echo の順
+/// `--provider` 指定時は API (失敗は Err) / なければ local model → API (key があれば、失敗は Err) → echo の順
 pub fn create_provider(
     cli: &Cli,
     env: &dyn Fn(&str) -> Option<String>,
@@ -196,12 +196,13 @@ pub fn create_provider(
         }
     }
 
-    // API フォールバック (環境変数があれば)
+    // API フォールバック: key があれば API を使い、設定の誤り (model 未設定等) は Err で止める
+    // (echo に落とすのは key が 1 つも無い時だけ)
     #[cfg(feature = "api")]
-    {
-        if let Ok(p) = crate::provider::openai::OpenAiProvider::from_env_with(env) {
-            return Ok(Box::new(p));
-        }
+    if crate::provider::openai::OpenAiProvider::key_is_set(env) {
+        return crate::provider::openai::OpenAiProvider::from_env_with(env)
+            .map(|p| Box::new(p) as Box<dyn AgentProvider>)
+            .map_err(|e| format!("API provider error: {e}"));
     }
 
     eprintln!("[ALICE] モデルもAPIキーも見つかりません");

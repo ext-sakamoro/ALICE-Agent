@@ -3,6 +3,9 @@ use reqwest::blocking::Client;
 use serde_json::{json, Value};
 use std::io::{self, Write};
 
+/// [`OpenAiProvider::from_env_with`] が読む API key の変数 (この順に優先)
+const API_KEY_VARS: [&str; 2] = ["ANTHROPIC_API_KEY", "OPENAI_API_KEY"];
+
 pub struct OpenAiProvider {
     client: Client,
     api_key: String,
@@ -40,6 +43,11 @@ impl OpenAiProvider {
     /// 環境変数から自動構築。 Anthropic の model は ANTHROPIC_MODEL で必ず指定する (既定値は持たない)
     pub fn from_env() -> Result<Self, String> {
         Self::from_env_with(|k| std::env::var(k).ok())
+    }
+
+    /// API key の環境変数 (ANTHROPIC_API_KEY / OPENAI_API_KEY) のどれかが `get` で読めるか
+    pub fn key_is_set(get: impl Fn(&str) -> Option<String>) -> bool {
+        API_KEY_VARS.iter().any(|k| get(k).is_some())
     }
 
     /// `from_env` with the variables read through `get` (a test passes a fixed table)
@@ -243,6 +251,22 @@ mod required_model_tests {
         .unwrap();
         assert_eq!(p.model, "m-1");
         assert!(p.is_anthropic);
+    }
+
+    #[test]
+    fn key_is_set_names_the_variables_from_env_with_reads() {
+        assert!(super::OpenAiProvider::key_is_set(env(&[(
+            "ANTHROPIC_API_KEY",
+            "k"
+        )])));
+        assert!(super::OpenAiProvider::key_is_set(env(&[(
+            "OPENAI_API_KEY",
+            "k"
+        )])));
+        assert!(!super::OpenAiProvider::key_is_set(env(&[(
+            "OPENAI_MODEL",
+            "m"
+        )])));
     }
 
     #[test]

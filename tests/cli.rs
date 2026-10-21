@@ -151,3 +151,27 @@ fn a_key_without_a_model_is_the_required_model_error() {
     assert_eq!(out.status.code(), Some(1), "{stderr}");
     assert!(stderr.contains("ANTHROPIC_MODEL not set"), "{stderr}");
 }
+
+#[test]
+fn without_provider_flag_a_key_without_a_model_is_the_error_not_echo() {
+    let (_root, home, work) = layout("fallback", "", &[]);
+    let out = alice(
+        &home,
+        &work,
+        &[("ANTHROPIC_API_KEY", "k")],
+        &["-p", "hello"],
+    );
+    let stderr = text(&out.stderr);
+    assert_eq!(out.status.code(), Some(1), "{stderr}");
+    assert!(stderr.contains("ANTHROPIC_MODEL not set"), "{stderr}");
+    assert!(!text(&out.stdout).contains("[echo]"), "{stderr}");
+}
+
+#[test]
+fn without_provider_flag_and_no_key_echo_is_used() {
+    let (_root, home, work) = layout("echo", "", &[]);
+    let out = alice(&home, &work, &[], &["-p", "hello"]);
+    let stderr = text(&out.stderr);
+    assert!(out.status.success(), "{stderr}");
+    assert!(text(&out.stdout).contains("[echo]"), "{stderr}");
+}

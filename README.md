@@ -7,7 +7,7 @@ A Rust-native alternative to cloud-based coding agents. Loads a quantized LLM di
 ## Features
 
 - **Local inference**: Load `.alice` ternary models (~3.6GB) directly in Rust
-- **API fallback**: OpenAI and Anthropic APIs when no local model is available
+- **API fallback**: OpenAI and Anthropic APIs when no local model is available (with a key set, a configuration error such as a missing model stops with that error; the echo mode for tool testing starts only when no API key is set)
 - **Tool system**: bash, file read/write/edit, glob, grep — the essentials
 - **MCP support**: Connect to Model Context Protocol servers
 - **Permission control**: read-only / workspace-write / full-access
@@ -93,8 +93,8 @@ context_files = ["ALICE.md"]   # project instruction files, searched in order; t
 
 | Variable | Description |
 |----------|-------------|
-| `ANTHROPIC_API_KEY` | Anthropic API key (for `--provider anthropic`) |
-| `OPENAI_API_KEY` | OpenAI API key (for `--provider openai`) |
+| `ANTHROPIC_API_KEY` | Anthropic API key (for `--provider anthropic`, and the fallback when no local model is loaded) |
+| `OPENAI_API_KEY` | OpenAI API key (for `--provider openai`, and the fallback when no local model is loaded) |
 | `OPENAI_BASE_URL` | Custom OpenAI-compatible endpoint |
 | `OPENAI_MODEL` | Model name override |
 | `ANTHROPIC_MODEL` | Model name (required with `ANTHROPIC_API_KEY`; there is no default) |
