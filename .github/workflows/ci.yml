@@ -32,3 +32,27 @@ jobs:
           fail_level: error
           reporter: github-check
 
+  test:
+    name: Test (api)
+    runs-on: ubuntu-latest
+    steps:
+      # alice-train is an optional path dependency (../ALICE-Train, which itself uses
+      # ../ALICE-ML): cargo reads both manifests even when the feature is off, so the
+      # two repositories are checked out next to this one at fixed commits
+      - uses: actions/checkout@v5
+        with:
+          path: ALICE-Agent
+      - uses: actions/checkout@v5
+        with:
+          repository: ext-sakamoro/ALICE-Train
+          ref: b1a98e9dbc2a38f216d2f4981c8f834e42f80381
+          path: ALICE-Train
+      - uses: actions/checkout@v5
+        with:
+          repository: ext-sakamoro/ALICE-ML
+          ref: 5d45fb65de47a6a3b39a35f235a393ead8f2eb38
+          path: ALICE-ML
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Test (lib, bins, doctests)
+        working-directory: ALICE-Agent
+        run: cargo test --no-default-features --features api
