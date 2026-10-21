@@ -53,6 +53,11 @@ jobs:
           ref: 5d45fb65de47a6a3b39a35f235a393ead8f2eb38
           path: ALICE-ML
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - name: Clippy (all targets, warnings are errors)
+        working-directory: ALICE-Agent
+        run: cargo clippy --all-targets --no-default-features --features api -- -D warnings
       - name: Test (lib, bins, doctests)
         working-directory: ALICE-Agent
         run: cargo test --no-default-features --features api

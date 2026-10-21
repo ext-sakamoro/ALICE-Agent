@@ -26,6 +26,10 @@ step "ci.yml / fmt: Check formatting"
 step "ci.yml / actionlint: actionlint"
 actionlint .github/workflows/*.yml
 
+step "ci.yml / test: Clippy (all targets, warnings are errors)"
+relint
+( export CARGO_TERM_COLOR="always"; cargo clippy --all-targets --no-default-features --features api -- -D warnings )
+
 if [[ $quick -eq 1 ]]; then
   echo; echo "preflight --quick OK (test / bench suites skipped)"; exit 0
 fi
