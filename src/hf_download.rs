@@ -7,10 +7,12 @@
 //!
 //! ```no_run
 //! use alice_agent::hf_download::{HfDownloader, HfRepo, RepoType};
+//! use std::path::Path;
 //!
 //! let dl = HfDownloader::from_env().unwrap();
 //! let repo = HfRepo::new("sakamoro/alice-train", RepoType::Model);
-//! dl.download_file(&repo, "config.json", "/tmp/config.json").unwrap();
+//! dl.download_file(&repo, "config.json", Path::new("/tmp/config.json"), None)
+//!     .unwrap();
 //! ```
 
 use reqwest::blocking::Client;
