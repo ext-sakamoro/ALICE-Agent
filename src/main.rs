@@ -155,6 +155,10 @@ fn create_provider(
         }
     }
 
+    // the model paths in config are read only by the local provider
+    #[cfg(not(feature = "local"))]
+    let _ = config;
+
     #[cfg(feature = "local")]
     {
         let model_path = cli.model.as_deref().unwrap_or(&config.model_path);
