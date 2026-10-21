@@ -1,2 +1,4 @@
 /target
 Cargo.lock
+# output of src/bin/extract_world_model_data.rs (local data, not shipped)
+/data/world_model_training*.jsonl
