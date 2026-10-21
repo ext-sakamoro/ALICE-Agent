@@ -39,7 +39,7 @@ fn default_temperature() -> f32 {
 }
 
 /// 既定で読むプロジェクトの指示 file
-pub fn default_context_files() -> Vec<String> {
+pub(crate) fn default_context_files() -> Vec<String> {
     vec!["ALICE.md".to_string()]
 }
 

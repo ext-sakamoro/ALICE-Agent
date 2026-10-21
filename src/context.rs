@@ -13,7 +13,7 @@ pub fn system_prompt(config: &crate::config::AgentConfig, working_dir: &str) -> 
 /// システムプロンプトを構築する `context_files` の名前を working_dir で順に探し、
 /// 最初に見つかった 1 つをプロジェクトの指示として読み込む (既定は `ALICE.md` だけ、
 /// config.toml の `context_files` で変えられる)
-pub fn build_context(working_dir: &str, context_files: &[String]) -> String {
+pub(crate) fn build_context(working_dir: &str, context_files: &[String]) -> String {
     let mut prompt = DEFAULT_SYSTEM_PROMPT.to_string();
 
     for name in context_files {
