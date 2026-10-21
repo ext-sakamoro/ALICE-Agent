@@ -58,9 +58,14 @@ fn alice(home: &Path, work: &Path, env: &[(&str, &str)], args: &[&str]) -> Outpu
 
 /// 1 回だけ request を受けて `reply` を chat completion として返す 受けた body を送る
 fn one_shot_server(reply: &str) -> (String, mpsc::Receiver<String>) {
+    let body = serde_json::json!({ "choices": [{ "message": { "content": reply } }] }).to_string();
+    one_shot_response("200 OK", body)
+}
+
+/// 1 回だけ request を受けて `status` と `body` を返す 受けた body を送る
+fn one_shot_response(status: &'static str, body: String) -> (String, mpsc::Receiver<String>) {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let url = format!("http://{}", listener.local_addr().unwrap());
-    let body = serde_json::json!({ "choices": [{ "message": { "content": reply } }] }).to_string();
     let (tx, rx) = mpsc::channel();
     std::thread::spawn(move || {
         let Ok((stream, _)) = listener.accept() else {
@@ -83,7 +88,7 @@ fn one_shot_server(reply: &str) -> (String, mpsc::Receiver<String>) {
         let mut stream = reader.into_inner();
         let _ = write!(
             stream,
-            "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}",
+            "HTTP/1.1 {status}\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}",
             body.len()
         );
         let _ = tx.send(String::from_utf8_lossy(&req).into_owned());
@@ -218,4 +223,43 @@ fn without_config_toml_the_defaults_are_used() {
         system.contains("# Project Instructions (from ALICE.md)\n\ndefault instructions"),
         "{system}"
     );
+}
+
+/// 一時 HOME の .alice-agent/sessions にある file の数 (dir が無ければ 0)
+fn saved_sessions(home: &Path) -> usize {
+    std::fs::read_dir(home.join(".alice-agent/sessions"))
+        .map(|d| d.count())
+        .unwrap_or(0)
+}
+
+#[test]
+fn a_successful_one_shot_saves_one_session() {
+    let (_root, home, work) = layout("save-ok", "", &[]);
+    let (url, _rx) = one_shot_server("stub reply");
+    let out = alice(
+        &home,
+        &work,
+        &[("OPENAI_API_KEY", "k"), ("OPENAI_BASE_URL", &url)],
+        &["--provider", "openai", "-p", "hello"],
+    );
+    let stderr = text(&out.stderr);
+    assert!(out.status.success(), "{stderr}");
+    assert_eq!(saved_sessions(&home), 1, "{stderr}");
+}
+
+#[test]
+fn a_failed_one_shot_saves_no_session() {
+    let (_root, home, work) = layout("save-err", "", &[]);
+    let body = serde_json::json!({ "error": { "message": "stub failure" } }).to_string();
+    let (url, _rx) = one_shot_response("500 Internal Server Error", body);
+    let out = alice(
+        &home,
+        &work,
+        &[("OPENAI_API_KEY", "k"), ("OPENAI_BASE_URL", &url)],
+        &["--provider", "openai", "-p", "hello"],
+    );
+    let stderr = text(&out.stderr);
+    assert_eq!(out.status.code(), Some(1), "{stderr}");
+    assert!(stderr.contains("stub failure"), "{stderr}");
+    assert_eq!(saved_sessions(&home), 0, "{stderr}");
 }
